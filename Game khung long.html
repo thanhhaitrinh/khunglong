@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hãy giúp con khủng long tránh bị béo phì!</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            color: #333;
+        }
+
+        #gameArea {
+            width: 600px;
+            height: 200px;
+            position: relative;
+            background-color: #e0e0e0;
+            border: 2px solid black;
+            overflow: hidden;
+        }
+
+        #dino {
+            width: 60px;
+            height: 60px;
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+            background-image: url('https://www.pngarts.com/files/5/Tyrannosaurus-Rex-Download-Transparent-PNG-Image.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        #cactus {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            bottom: 0;
+            right: -40px;
+            background-image: url('https://pluspng.com/img-png/sausage-png-big-image-png-1934.png');
+            background-size: cover;
+            animation: moveCactus 2s infinite linear;
+        }
+
+        @keyframes moveCactus {
+            0% {
+                right: -40px;
+            }
+            100% {
+                right: 100%;
+            }
+        }
+
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            color: black;
+        }
+
+        @keyframes jump {
+            0% { bottom: 0; }
+            50% { bottom: 80px; }
+            100% { bottom: 0; }
+        }
+
+        #restartButton {
+            display: none; /* Ẩn nút khi chưa kết thúc game */
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #restartButton:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hãy giúp con khủng long tránh bị béo phì!</h1>
+    <div id="gameArea">
+        <div id="dino"></div>
+        <div id="cactus"></div>
+        <div id="score">0</div>
+    </div>
+    <button id="restartButton" onclick="restartGame()">Bắt đầu lại</button>
+
+    <script>
+        let dino = document.getElementById("dino");
+        let cactus = document.getElementById("cactus");
+        let score = document.getElementById("score");
+        let restartButton = document.getElementById("restartButton");
+
+        let gameInterval;
+        let cactusInterval;
+        let gameScore = 0;
+        let isJumping = false;
+        let isGameOver = false;
+
+        function startGame() {
+            restartButton.style.display = "none"; // Ẩn nút "Bắt đầu lại"
+            gameScore = 0; // Đặt lại điểm số
+            score.innerText = gameScore; // Cập nhật điểm
+            cactus.style.animationDuration = '2s'; // Tốc độ cây xúc xích
+            cactus.style.right = "-40px"; // Đảm bảo cây xúc xích bắt đầu từ ngoài màn hình
+            isGameOver = false; // Đặt lại trạng thái trò chơi
+
+            cactusInterval = setInterval(() => {
+                if (isGameOver) return; // Dừng việc kiểm tra va chạm nếu game đã kết thúc
+
+                let cactusPosition = cactus.getBoundingClientRect();
+                let dinoPosition = dino.getBoundingClientRect();
+
+                // Kiểm tra va chạm giữa khủng long và cây xúc xích chỉ khi khủng long không nhảy
+                if (!isJumping && cactusPosition.right > dinoPosition.left &&
+                    cactusPosition.left < dinoPosition.right &&
+                    cactusPosition.bottom > dinoPosition.top) {
+                    stopGame(); // Dừng trò chơi khi va chạm
+                }
+            }, 10);
+
+            gameInterval = setInterval(() => {
+                if (isGameOver) return; // Dừng việc tăng điểm nếu game đã kết thúc
+                gameScore++; // Tăng điểm
+                score.innerText = gameScore; // Cập nhật điểm
+            }, 100);
+        }
+
+        document.addEventListener("keydown", function(event) {
+            if (event.key === " " && !isJumping && !isGameOver) {
+                isJumping = true;
+                dino.style.animation = "jump 0.5s";
+                setTimeout(() => {
+                    dino.style.animation = "";
+                    isJumping = false;
+                }, 500);
+            }
+        });
+
+        function stopGame() {
+            isGameOver = true;
+            clearInterval(gameInterval); // Dừng việc tăng điểm
+            clearInterval(cactusInterval); // Dừng cây xúc xích
+            restartButton.style.display = "block"; // Hiển thị nút "Bắt đầu lại"
+        }
+
+        function restartGame() {
+            restartButton.style.display = "none"; // Ẩn nút "Bắt đầu lại"
+            startGame(); // Khởi động lại trò chơi
+        }
+
+        startGame(); // Bắt đầu trò chơi khi trang tải
+    </script>
+</body>
+</html>
